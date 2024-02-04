@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 {% block title %}Register{% endblock %}
+{% block page_heading %}
+  {% include 'page_heading.html' %}
+{% endblock %}
 {% block content %}
     <h1>Register</h1>
 
@@ -7,14 +10,14 @@
         {{ form.hidden_tag() }}
         <p>
             {{ form.email.label }}<br>
-            {{ form.email(size=20) }}
+            {{ form.email(size=20, class="form-control") }}
             {% for error in form.email.errors %}
                 <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
         </p>
         <p>
             {{ form.password.label }}<br>
-            {{ form.password(size=20) }}
+            {{ form.password(size=20, class="form-control") }}
             {% for error in form.password.errors %}
                 <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
@@ -24,7 +27,7 @@
             {{ form.time_zone() }}
         </p>
         <p>
-            {{ form.submit() }}
+            {{ form.submit(class="btn btn-primary") }}
         </p>
     </form>
 
