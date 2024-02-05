@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Register{% endblock %}
-{% block page_heading %}
-  {% include 'page_heading.html' %}
+{% block _page_heading %}
+  {% include '_page_heading.html' %}
 {% endblock %}
 {% block content %}
     <h1>Register</h1>
@@ -24,7 +24,7 @@
         </p>
         <p>
             {{ form.time_zone.label }}<br>
-            {{ form.time_zone() }}
+            {{ form.time_zone(class="form-control") }}
         </p>
         <p>
             {{ form.submit(class="btn btn-primary") }}

@@ -1,0 +1,9 @@
+#betfake-container .form-control {
+    width: 50%;
+}
+
+@media (max-width: 767px) {
+    #betfake-container .form-control {
+        width: 100%;
+    }    
+}

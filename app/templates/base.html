@@ -34,7 +34,7 @@
                     <li>
                         <a href="contact.html">Contact</a>
                     </li>
-                    <li class="dropdown active">
+                    <li class="dropdown active-to-be-updated">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Portfolio <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             <li>
@@ -43,7 +43,7 @@
                             <li>
                                 <a href="portfolio-2-col.html">2 Column Portfolio</a>
                             </li>
-                            <li class="active">
+                            <li class="active-to-be-updated">
                                 <a href="portfolio-3-col.html">3 Column Portfolio</a>
                             </li>
                             <li>
@@ -96,8 +96,8 @@
     </nav>
 
     <!-- Page Content -->
-    <div class="container">
-        {% block page_heading %}{% endblock %} <!-- Placeholder for Page Heading/Breadcrumbs -->
+    <div class="container" id="betfake-container">
+        {% block _page_heading %}{% endblock %} <!-- Placeholder for Page Heading/Breadcrumbs -->
         
         {% block content %}{% endblock %} <!-- Main content block -->
         
