@@ -66,6 +66,9 @@ class Market(db.Model):
     name = db.Column(db.String, nullable=False)
     price = db.Column(db.Float)
     point = db.Column(db.Float)
+    created_time = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    marked_unavailable_time = db.Column(db.DateTime, nullable=True)
+    status_updated_time = db.Column(db.DateTime, nullable=True)
     last_updated_time = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     status = db.Column(db.Enum(MarketStatus), default=MarketStatus.tbd, nullable=False)
     type = db.Column(db.Enum(MarketType), nullable=False)
@@ -83,6 +86,7 @@ class Bet(db.Model):
     amount = db.Column(db.Float, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     included_in_balance = db.Column(db.Boolean, default=False, nullable=False)
+    added_to_balance_time = db.Column(db.DateTime, nullable=True)
 
     user = db.relationship('User', backref=db.backref('bets', lazy='dynamic'))
     market = db.relationship('Market', backref=db.backref('bets', lazy='dynamic'))
