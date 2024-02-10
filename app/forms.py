@@ -27,7 +27,7 @@ class FetchOddsForm(FlaskForm):
     ])
     market = SelectField('Market', choices=[
         ('h2h', 'Moneyline'),
-        ('spreads', 'Spreads')
+        ('spreads', 'Spreads'),
         ('totals', 'Totals')
     ])
     submit = SubmitField('Fetch Odds')

@@ -55,6 +55,11 @@ class MarketStatus(enum.Enum):
     push = 'push'
     tbd = 'tbd'
 
+class MarketType(enum.Enum):
+    h2h = 'h2h'
+    spreads = 'spreads'
+    totals = 'totals'
+
 class Market(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
@@ -63,6 +68,7 @@ class Market(db.Model):
     point = db.Column(db.Float)
     last_updated_time = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     status = db.Column(db.Enum(MarketStatus), default=MarketStatus.tbd, nullable=False)
+    type = db.Column(db.Enum(MarketType), nullable=False)
 
     event = db.relationship('Event', backref=db.backref('markets', lazy='dynamic'))
 
