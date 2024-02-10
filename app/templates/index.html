@@ -16,6 +16,7 @@
 
 {% if logged_in and current_user.is_admin %}
     <a href="{{ url_for('admin_reset_password') }}">Admin: Reset Passwords</a>
+    <a href="{{ url_for('admin_fetch_odds') }}">Admin: Fetch Odds</a>
 {% endif %}
 
 {% endblock %}

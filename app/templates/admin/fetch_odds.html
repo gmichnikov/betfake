@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Fetch Odds{% endblock %}
+{% block _page_heading %}
+  {% include '_page_heading.html' %}
+{% endblock %}
+{% block content %}
+
+
+<h2>Fetch Odds</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div>{{ form.sport.label }}: {{ form.sport() }}</div>
+    <div>{{ form.market.label }}: {{ form.market() }}</div>
+    <div>{{ form.submit() }}</div>
+</form>
+{% endblock %}

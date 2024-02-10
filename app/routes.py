@@ -2,11 +2,13 @@ from flask import render_template, redirect, url_for, flash, request
 from app import app, db
 from app.models import User, LogEntry
 from flask_login import login_user, logout_user, login_required, current_user, LoginManager
-from app.forms import RegistrationForm, LoginForm, AdminPasswordResetForm
+from app.forms import RegistrationForm, LoginForm, AdminPasswordResetForm, FetchOddsForm
 from functools import wraps
 import os
+import requests
 
 ADMIN_EMAIL = os.getenv('ADMIN_EMAIL')
+ODDS_API_KEY = os.getenv('ODDS_API_KEY')
 
 def admin_required(f):
     @wraps(f)
@@ -104,3 +106,34 @@ def admin_reset_password():
             flash('User not found.')
 
     return render_template('admin/reset_password.html', form=form)
+
+@app.route('/admin/fetch_odds', methods=['GET', 'POST'])
+@admin_required
+@login_required
+def admin_fetch_odds():
+    form = FetchOddsForm()
+    if form.validate_on_submit():
+        sport_name = form.sport.data
+        market_name = form.market.data
+        # Make the API call here with the selected values
+        # For now, let's just print them
+        print(sport_name, market_name)
+        flash('Odds fetched successfully.', 'success')
+    return render_template('admin/fetch_odds.html', form=form)
+
+
+def make_odds_api_call(sport_name, market_name):
+    api_url = f"https://api.the-odds-api.com/v4/sports/{sport_name}/odds"
+    params = {
+        'regions': 'us',
+        'markets': market_name,
+        'oddsFormat': 'american',
+        'dateFormat': 'unix',
+        'api_key': ODDS_API_KEY
+    }
+    response = requests.get(api_url, params=params)
+    if response.status_code == 200:
+        odds_data = response.json()
+        # Process the odds data here
+    else:
+        flash('Failed to fetch odds from the API.', 'danger')
