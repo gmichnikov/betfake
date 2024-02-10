@@ -1,11 +1,13 @@
 from flask import render_template, redirect, url_for, flash, request
 from app import app, db
-from app.models import User, LogEntry
+from app.models import User, LogEntry, Market, Bet, Event, MarketStatus, MarketType, Transaction, TransactionType
 from flask_login import login_user, logout_user, login_required, current_user, LoginManager
 from app.forms import RegistrationForm, LoginForm, AdminPasswordResetForm, FetchOddsForm
 from functools import wraps
 import os
 import requests
+import json
+from datetime import datetime
 
 ADMIN_EMAIL = os.getenv('ADMIN_EMAIL')
 ODDS_API_KEY = os.getenv('ODDS_API_KEY')
@@ -115,9 +117,8 @@ def admin_fetch_odds():
     if form.validate_on_submit():
         sport_name = form.sport.data
         market_name = form.market.data
-        # Make the API call here with the selected values
-        # For now, let's just print them
         print(sport_name, market_name)
+        make_odds_api_call(sport_name, market_name)
         flash('Odds fetched successfully.', 'success')
     return render_template('admin/fetch_odds.html', form=form)
 
@@ -134,6 +135,75 @@ def make_odds_api_call(sport_name, market_name):
     response = requests.get(api_url, params=params)
     if response.status_code == 200:
         odds_data = response.json()
+        process_odds_response(odds_data, sport_name, market_name)
         # Process the odds data here
     else:
         flash('Failed to fetch odds from the API.', 'danger')
+
+def process_odds_response(odds_data, sport_name, market_name):
+    update_existing_markets(sport_name, market_name)
+
+    for event in odds_data:
+        existing_event = Event.query.filter_by(event_id=event['id']).first()
+        db_event = existing_event
+        if not existing_event:
+            # Convert epoch to datetime
+            commence_time = datetime.utcfromtimestamp(event['commence_time'])
+            new_event = Event(
+                event_id=event['id'],
+                category="sports",
+                sport_key=event['sport_key'],
+                sport_title=event['sport_title'],
+                commence_time=commence_time,
+                home_team=event['home_team'],
+                away_team=event['away_team'],
+                completed=False
+            )
+            db.session.add(new_event)
+            db_event = new_event
+        else:
+            existing_event.commence_time = datetime.utcfromtimestamp(event['commence_time'])
+            existing_event.last_updated_time = datetime.utcnow()
+        db.session.commit()
+
+        best_prices = {}
+        for bookmaker in event['bookmakers']:
+            for market in bookmaker['markets']:
+                for outcome in market['outcomes']:
+                    key = (outcome['name'], outcome.get('point'))
+                    if key not in best_prices or outcome['price'] > best_prices[key]['price']:
+                        best_prices[key] = {
+                            'price': outcome['price'],
+                            'point': outcome.get('point'),
+                            'type': market['key']
+                        }
+
+        # After determining the best prices, update or create markets in the database
+        for (name, point), details in best_prices.items():
+            new_market = Market(
+                event_id=db_event.id,
+                name=name,
+                price=details['price'],
+                point=point,
+                type=details['type']
+            )
+            db.session.add(new_market)
+
+        db.session.commit()
+
+def update_existing_markets(sport_name, market_name):
+    market_ids = db.session.query(Market.id).join(Event).filter(
+        Event.sport_key == sport_name,
+        Market.available == True,
+        Market.type == market_name
+    ).all()
+    market_ids = [mid[0] for mid in market_ids]
+
+    # Then, perform the update operation only on those IDs
+    if market_ids:
+        db.session.query(Market).filter(Market.id.in_(market_ids)).update({
+            Market.available: False,
+            Market.marked_unavailable_time: datetime.utcnow(),
+            Market.last_updated_time: datetime.utcnow()
+        }, synchronize_session=False)
+        db.session.commit()
