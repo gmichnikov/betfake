@@ -69,6 +69,7 @@ class Market(db.Model):
     last_updated_time = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     status = db.Column(db.Enum(MarketStatus), default=MarketStatus.tbd, nullable=False)
     type = db.Column(db.Enum(MarketType), nullable=False)
+    available = db.Column(db.Boolean, default=True, nullable=False)
 
     event = db.relationship('Event', backref=db.backref('markets', lazy='dynamic'))
 
